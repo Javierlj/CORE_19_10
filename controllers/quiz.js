@@ -9,7 +9,9 @@ exports.load = (req, res, next, quizId) => {
 
     models.quiz.findByPk(quizId, {
         include: [
-            models.tip,
+            {model:models.tip, include: [
+                {model: models.user, as: 'author'}
+            ]},
             {model: models.user, as: 'author'}
         ]
     })
@@ -225,3 +227,4 @@ exports.check = (req, res, next) => {
         answer
     });
 };
+
