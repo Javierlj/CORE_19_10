@@ -5,6 +5,8 @@ const quizController = require('../controllers/quiz');
 const tipController = require('../controllers/tip');
 const userController = require('../controllers/user');
 const sessionController = require('../controllers/session');
+const statisticsController = require('../controllers/statistics');
+
 
 //-----------------------------------------------------------
 
@@ -35,6 +37,7 @@ function saveBack(req, res, next) {
 router.get([
   '/',
   '/author',
+  '/statistics',
   '/users',
   '/users/:id(\\d+)/quizzes',
   '/quizzes'], saveBack);
@@ -50,6 +53,9 @@ router.get('/', (req, res, next) => {
 router.get('/author', (req, res, next) => {
   res.render('author');
 });
+
+// Statistics page.
+router.get('/statistics', statisticsController.index);
 
 
 // Autoload for routes using :quizId

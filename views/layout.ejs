@@ -13,6 +13,7 @@
           type='text/css'
           media='only screen and (max-width: 480px)'
           href='/stylesheets/smartphone.css'/>
+    <script src="/js/bundle.js"></script>
 </head>
 <body>
 <div id="page">
@@ -42,6 +43,7 @@
             <a href="/users/<%= session.user.id %>/quizzes">My Quizzes</a>
         <% } %>
         <a href="/author">Author</a>
+        <a href="/statistics">Statistics</a>
         <% if (session.user) { %>
             <a href="/users">Users</a>
         <% } %>
@@ -93,6 +95,7 @@
         <a href="http://en.wikipedia.org/wiki/Quiz">
             What is a Quiz?</a>
     </footer>
+
 </div>
 </body>
 </html>
