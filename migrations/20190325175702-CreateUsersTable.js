@@ -29,6 +29,9 @@ module.exports = {
                     type: Sequelize.BOOLEAN,
                     defaultValue: false
                 },
+                points:{
+                    type: Sequelize.INTEGER
+                },
                 createdAt: {
                     type: Sequelize.DATE,
                     allowNull: false

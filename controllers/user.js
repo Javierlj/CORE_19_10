@@ -6,7 +6,14 @@ const paginate = require('../helpers/paginate').paginate;
 // Autoload the user with id equals to :userId
 exports.load = (req, res, next, userId) => {
 
-    models.user.findByPk(userId)
+    models.user.findByPk(userId, {include:[
+        {model: models.user,
+            as:"Followers"
+        },
+        {model: models.user,
+            as: "Followed" 
+        }
+    ]})
     .then(user => {
         if (user) {
             req.user = user;
@@ -55,8 +62,23 @@ exports.index = (req, res, next) => {
 exports.show = (req, res, next) => {
 
     const {user} = req;
+    let following= false;
+    user.getFollowers()
+    .then(followers=>{
+        console.log(followers);
+        if(followers){
+            followers.forEach(e=>{
+                if(e.id===req.session.id){
+                    following= true;
+                }
+            })
+        }
+        res.render('users/show', {user,followers,following});
+    })
+    .catch(error=>next(error));
+    
 
-    res.render('users/show', {user});
+    
 };
 
 
@@ -76,10 +98,11 @@ exports.new = (req, res, next) => {
 exports.create = (req, res, next) => {
 
     const {username, password} = req.body;
-
+    let points= 0;
     const user = models.user.build({
         username,
-        password
+        password,
+        points
     });
 
     // Save into the data base

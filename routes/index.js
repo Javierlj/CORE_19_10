@@ -6,6 +6,7 @@ const tipController = require('../controllers/tip');
 const userController = require('../controllers/user');
 const sessionController = require('../controllers/session');
 const statisticsController = require('../controllers/statistics');
+const followersController = require('../controllers/followers');
 
 
 //-----------------------------------------------------------
@@ -53,6 +54,10 @@ router.get('/', (req, res, next) => {
 router.get('/author', (req, res, next) => {
   res.render('author');
 });
+
+router.get('/chat',sessionController.loginRequired, (req, res, next) => {
+    res.render('chat');
+  });
 
 // Statistics page.
 router.get('/statistics', statisticsController.index);
@@ -161,5 +166,15 @@ router.put('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)',
     tipController.adminOrAuthorRequired,
     tipController.update);
 
-    
+
+router.get('/quizzes/randomcheck/:quizId(\\d+)',quizController.randomCheck)
+
+router.get('/quizzes/randomplay',quizController.randomPlay);
+
+
+
+//Routes for followers
+router.put('/users/:userId/followers/:followerId', followersController.add);
+router.delete('/users/:userId/followers/:followerId', followersController.delete);
+
 module.exports = router;

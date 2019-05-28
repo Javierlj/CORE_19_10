@@ -1,18 +1,19 @@
 <h1>
     User:
 </h1>
-
 <ul>
     <li>
         User name:
         <b><%= user.username %></b>
     </li>
-
+    <li>
+        Points:
+        <b><%= user.points %></b>
+    </li>
     <li>
         Administrator:
         <b><%= user.isAdmin ? "Yes" : "No" %></b>
     </li>
-
 </ul>
 
 <% if (session.user) { %>
@@ -32,4 +33,43 @@
     </p>
 <% } %>
 
+<% for (let follower of followers){%>
+    <p><%=follower.username%></p>
+<%}%>
+
+<%if(session.user){%>
+
+    <td>
+        <a id="follow_<%= user.id %>" class="button"></a>
+    </td>
+</br>
+<script>
+    (function(){
+        
+        var state= <%=following%>;
+        var userId= <%=session.user.id%>;
+        var followedId= <%=user.id%>;
+        var followButton= document.getElementById("follow_<%=user.id%>");
+        followButton.text= state ? "Dejar de seguir" : "Seguir";
+        followButton.onclick=function(){
+            var request = new XMLHttpRequest();
+            var method = state ? "DELETE" : "PUT" ;
+            var url= "/users/"+ followedId + "/followers/" + userId + "?_method=" + method;
+            request.open("POST",url);
+            request.setRequestHeader("X-Requested-With","XMLHttpRequest");
+            request.onreadystatechange= function(){
+                if(request.readyState===4 && request.status ===200){
+                    state = !state;
+                    followButton.text= state ? "Dejar de seguir" : "Seguir";
+                }
+            }
+            request.send();
+            return false;
+        };
+    })();
+</script>
+
+<%}%>
+
 <a href="/goback" class="button">Go back</a>
+

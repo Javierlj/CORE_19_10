@@ -50,6 +50,7 @@ a.button {
     color: black;
     border-radius: 4px;
     border: solid 1px lightgray;
+    cursor: pointer;
 }
 
 a.button:hover {

@@ -1,16 +1,67 @@
+<div id="create">
+    <div class="wideRow">
+    <label for="preg"  class="itemNarrow">Question:</label>
+    <input type="text" class="itemWide" id="preg" name="question" value="<%= quiz.question %>" placeholder="Question" autocomplete="off"/>
+    </div>
+    
+    
+    <div class="wideRow">
+    <label for="resp"  class="itemNarrow">Answer:</label>
+    <input type="text" class="itemWide" id="resp" name="answer" value="<%= quiz.answer %>" placeholder="Answer" autocomplete="off"/>
+    </div>
+    
+    <br/>
+    <a href="/goback" class="button">Cancel</a>
+    
+    <input id="create-button" class="button" value="Save">
+</div>
 
-<div class="wideRow">
-<label for="preg"  class="itemNarrow">Question:</label>
-<input type="text" class="itemWide" id="preg" name="question" value="<%= quiz.question %>" placeholder="Question" autocomplete="off"/>
+<div id="show">
+    <div class="right">
+        <small> (by <%= quiz.author ? quiz.author.username : "Anonymous" %>) </small>
+    </div>
+    
+    <h1>
+        Show question:
+    </h1>
+    
+    <ul>
+        <li>Question: <b><%= quiz.question %></b></li>
+        <li>Answer: <b><%= quiz.answer %></b></li>
+    </ul>
+    
+    
+    <h1>
+        Tips:
+    </h1>
+    
+    <% if (session.user) { %>
+        <% include ../tips/new %>
+    <% } %>
+    
+    <% var tips = quiz.tips; %>
+    <% var quizId = quiz.id; %>
+    <% var quizAuthorId = quiz.authorId; %>
+    
+    <% include ../tips/index %>
 </div>
 
 
-<div class="wideRow">
-<label for="resp"  class="itemNarrow">Answer:</label>
-<input type="text" class="itemWide" id="resp" name="answer" value="<%= quiz.answer %>" placeholder="Answer" autocomplete="off"/>
-</div>
+<a href="/goback" class="button">Go back</a>
 
-<br/>
-<a href="/goback" class="button">Cancel</a>
-
-<input type="submit" value="Save">
+<script>
+    (function(){
+        
+        let createButton= document.getElementById("create-button");
+        createButton.onclick=function(){
+            $.ajax({
+               type:'POST',
+               url: '/quizzes?question='+$("#question").text()+'&answer='+$("#answer").text(),
+                success: function(response){
+                    $("#create").hide();
+                    $("#show").show();
+                }
+            })
+        };
+    })();
+</script>

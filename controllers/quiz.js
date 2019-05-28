@@ -134,9 +134,13 @@ exports.create = (req, res, next) => {
 
     // Saves only the fields question and answer into the DDBB
     quiz.save({fields: ["question", "answer", "authorId"]})
-    .then(quiz => {
+    .then(() => {
         req.flash('success', 'Quiz created successfully.');
-        res.redirect('/quizzes/' + quiz.id);
+        if(req.xhr){
+            res.send(200);
+        }else{
+            res.sendStatus(415);
+        }
     })
     .catch(Sequelize.ValidationError, error => {
         req.flash('error', 'There are errors in the form:');
@@ -220,7 +224,10 @@ exports.check = (req, res, next) => {
 
     const answer = query.answer || "";
     const result = answer.toLowerCase().trim() === quiz.answer.toLowerCase().trim();
-
+    if(result){
+        req.session.user.points++;
+        req.session.user.save({fields:["points"]})
+    }
     res.render('quizzes/result', {
         quiz,
         result,
@@ -228,3 +235,53 @@ exports.check = (req, res, next) => {
     });
 };
 
+let score=0;
+let playing=false;
+
+exports.randomPlay = (req,res,next)=>{
+    if(!playing){
+        req.session.randomPlay=[];
+        score=0;
+    }
+    models.quiz.findAll({
+        limit: 1,
+        where:{
+        id:{
+            [Op.notIn]: req.session.randomPlay
+        }
+        },
+        order: [
+        Sequelize.fn('RANDOM'),
+        ]
+    })
+    .then(quizzes =>{
+        let quiz=quizzes[0];
+        if(quiz){
+        res.render('quizzes/random_play.ejs', {score,quiz});
+        }else{
+        playing=false;
+        res.render('quizzes/random_none.ejs',{score});
+        }
+    }); 
+    
+}
+
+exports.randomCheck=(req,res,next)=>{
+    const answer= req.query.answer || '';
+    const quizId = Number(req.params.quizId);
+    models.quiz.findByPk(quizId)
+    .then(quiz=>{
+      if(quiz){
+        if(quiz.answer.toLowerCase().trim()===answer.toLowerCase().trim()){
+          result=true;
+          req.session.randomPlay.push(quiz.id);
+          score++;
+          playing=true;
+        }else{
+          result=false;
+          playing=false;
+        }
+        res.render('quizzes/random_result.ejs',{result,score,answer});
+      }
+    })
+}
