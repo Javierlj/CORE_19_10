@@ -1,24 +1,20 @@
-
 const express = require('express');
 const router = express.Router();
+
 const quizController = require('../controllers/quiz');
 const tipController = require('../controllers/tip');
 const userController = require('../controllers/user');
 const sessionController = require('../controllers/session');
-const statisticsController = require('../controllers/statistics');
-const followersController = require('../controllers/followers');
-
+const favouriteController = require('../controllers/favourite');
 
 //-----------------------------------------------------------
 
-const quizRouter = require('./quiz');
-const apiRouter = require('./api');
+// autologout
+router.all('*',sessionController.deleteExpiredUserSession);
 
-// Routes mounted at '/api'.
-router.use('/api', apiRouter);
+//-----------------------------------------------------------
 
-// Routes mounted at '/'.
-router.use(/^(?!\/api\/)/, quizRouter);
+// History: Restoration routes.
 
 // Redirection to the saved restoration route.
 function redirectBack(req, res, next) {
@@ -38,12 +34,10 @@ function saveBack(req, res, next) {
 // Restoration routes are GET routes that do not end in:
 //   /new, /edit, /play, /check, /session, or /:id.
 router.get([
-  '/',
-  '/author',
-  '/statistics',
+  '/','/author',
   '/users',
   '/users/:id(\\d+)/quizzes',
-  '/quizzes'], saveBack);
+  '/quizzes'],                 saveBack);
 
 //-----------------------------------------------------------
 
@@ -56,13 +50,6 @@ router.get('/', (req, res, next) => {
 router.get('/author', (req, res, next) => {
   res.render('author');
 });
-
-router.get('/chat',sessionController.loginRequired, (req, res, next) => {
-    res.render('chat');
-  });
-
-// Statistics page.
-router.get('/statistics', statisticsController.index);
 
 
 // Autoload for routes using :quizId
@@ -110,18 +97,27 @@ router.delete('/users/:userId(\\d+)',
     sessionController.adminOrMyselfRequired,
     userController.destroy);
 
+
+router.put('/users/:userId(\\d+)/token',
+    sessionController.adminOrMyselfRequired,
+    userController.createToken);   // generar un nuevo token
+
+
 router.get('/users/:userId(\\d+)/quizzes',
     sessionController.loginRequired,
     quizController.index);
 
 
 // Routes for the resource /quizzes
-router.get('/quizzes',
+router.get('/quizzes.:format?',
     quizController.index);
-router.get('/quizzes/:quizId(\\d+)',
+router.get('/quizzes/:quizId(\\d+).:format?',
     quizController.show);
 router.get('/quizzes/new',
     sessionController.loginRequired,
+
+    quizController.limitPerDay,
+
     quizController.new);
 router.post('/quizzes',
     sessionController.loginRequired,
@@ -145,8 +141,12 @@ router.get('/quizzes/:quizId(\\d+)/check',
     quizController.check);
 
 
+
 router.post('/quizzes/:quizId(\\d+)/tips',
     sessionController.loginRequired,
+
+    tipController.limitPerQuiz,
+
     tipController.create);
 router.put('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)/accept',
     sessionController.loginRequired,
@@ -158,25 +158,15 @@ router.delete('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)',
     tipController.destroy);
 
 
-router.get('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)/edit',
+// Routes for the resource favourites of a user
+router.put('/users/:userId(\\d+)/favourites/:quizId(\\d+)',
     sessionController.loginRequired,
-    tipController.adminOrAuthorRequired,
-    tipController.edit);
-
-router.put('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)',
+    sessionController.adminOrMyselfRequired,
+    favouriteController.add);
+router.delete('/users/:userId(\\d+)/favourites/:quizId(\\d+)',
     sessionController.loginRequired,
-    tipController.adminOrAuthorRequired,
-    tipController.update);
+    sessionController.adminOrMyselfRequired,
+    favouriteController.del);
 
-
-router.get('/quizzes/randomcheck/:quizId(\\d+)',quizController.randomCheck)
-
-router.get('/quizzes/randomplay',quizController.randomPlay);
-
-
-
-//Routes for followers
-router.put('/users/:userId/followers/:followerId', followersController.add);
-router.delete('/users/:userId/followers/:followerId', followersController.delete);
 
 module.exports = router;

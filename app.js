@@ -18,6 +18,20 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+
+// In production (Heroku) I redirect the HTTP requests to https.
+// Documentation: http://jaketrent.com/post/https-redirect-node-heroku/
+if (app.get('env') === 'production') {
+  app.use(function(req, res, next) {
+    if (req.headers['x-forwarded-proto'] !== 'https') {
+      res.redirect('https://' + req.get('Host') + req.url);
+    } else {
+      next()
+    }
+  });
+}
+
+
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(express.json());
@@ -44,11 +58,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(partials());
 app.use(flash());
 
+// Control de Acceso HTTP (CORS) - Sonsoles
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 // Dynamic Helper:
 app.use(function(req, res, next) {
 
   // To use req.session in the views
   res.locals.session = req.session;
+
+  // To use req.url in the views
+  res.locals.url = req.url;
 
   next();
 });
