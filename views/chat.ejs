@@ -34,7 +34,7 @@
     });
     socket.on('chat message', function(msg){
       var user= msg.substr(0, msg.indexOf(','));
-      if(user!==<%=session.user.username%>){
+      if(user!=="<%=session.user.username%>"){
         $(".msg_history").append(`<div class="incoming_msg">
               <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
               <div class="received_msg">
