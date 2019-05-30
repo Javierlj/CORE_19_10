@@ -16,10 +16,10 @@
       </div>
     </div>
 
-<script src="http://localhost:5000/socket.io/socket.io.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 <script>
   $(function () {
-    var socket = io('http://localhost:5000');
+    var socket = io();
     $('form').submit(function(){
       if($('#m').val()){  
         socket.emit('chat message',"<%=session.user.username%>: " + $('#m').val());
