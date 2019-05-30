@@ -73,7 +73,10 @@ exports.show = (req, res, next) => {
             if (follower.length > 0) {
                 following = true;
             }
-            res.render('users/show', {user,followers,following});
+            user.getFollowed()
+            .then(followed=>{
+                res.render('users/show', {user,followers,following,followed});
+            })
         })
     })
     .catch(error=>next(error));

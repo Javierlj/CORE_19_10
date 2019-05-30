@@ -1,68 +1,71 @@
-<h1>
-    User:
-</h1>
-<ul>
-    <li>
-        User name:
-        <b><%= user.username %></b>
-    </li>
-    <li>
-        Points:
-        <b><%= user.points ? user.points : 0 %></b>
-    </li>
-    <li>
-        Administrator:
-        <b><%= user.isAdmin ? "Yes" : "No" %></b>
-    </li>
+<div class="container">
+	<div class="row">
+		<div class="col-md-offset-2 col-md-8 col-lg-offset-3 col-lg-6">
+    	 <div class="well profile" style=" min-width: 500px;">
+            <div class="col-sm-12">
+                <div class="col-xs-12 col-sm-8">
+                    <h2><%= user.username %></h2>
+                    <p><strong>Points: </strong> <%= user.points ? user.points : 0 %> </p>
+                    <p><strong>Administrator: </strong><%= user.isAdmin ? "Yes" : "No" %></p>
+                    <% if (session.user.isAdmin || session.user.id === user.id) { %>
+                        <p><strong>Token: </strong><%= user.token || 'NO TOKEN' %></p>
+                    <% } %>
+                </div>             
+            </div>            
+            <div class="col-xs-12 divider text-center" style="display: flex;">
+                <div class="col-xs-12 col-sm-4 emphasis">
+                    <h2><strong> <%=followers.lenght%> </strong></h2>                    
+                    <p><strong>Followers:</strong> </p>
+                    <% for (let follower of followers){%>
+                        <p id="follower_<%=follower.id%>"><%=follower.username%></p>
+                    <%}%>
+                    <p id="newFollower"></p>
+                    <button class="btn btn-success btn-block" id="follow_<%= user.id %>"></button>
+                </div>
+                <div class="col-xs-12 col-sm-4 emphasis">                  
+                    <p><strong>Following:</strong></p>
+                    <% for (let follower of followed){%>
+                        <p id="followed_<%=follower.id%>"><%=follower.username%></p>
+                    <%}%>
+                    <% if (session.user) { %>
+                            <% if (session.user.isAdmin || session.user.id === user.id) { %>
+                                <a href="/users/<%= user.id %>/edit"class="btn btn-info btn-block"> <span class="fa fa-user"></span> Edit</a>
+                            <% } %>
+                    <% } %>
+                </div>
+                <div class="col-xs-12 col-sm-4 emphasis">
+                    <% if (session.user) { %>
+                    
+                            <% if (session.user.isAdmin && session.user.id !== user.id) { %>
+                                <a href="/users/<%= user.id %>?_method=DELETE"
+                                    onClick="return confirm('Delete user: <%= user.username %>');"
+                                    class="btn btn-info btn-block"> <span class="fa fa-user"></span>Delete
+                                </a>
+                            <% } %>
+                    <% } %>
 
-    <% if (session.user.isAdmin || session.user.id === user.id) { %>
-        <li>
-            Token:
-            <b><%= user.token || 'NO TOKEN' %></b>
-        </li>
-    <% } %>
+                </div>
+            </div>
+    	 </div>                 
+		</div>
+	</div>
+</div>
 
-</ul>
 
-<% if (session.user) { %>
-    <p>
-        <% if (session.user.isAdmin || session.user.id === user.id) { %>
-            <a href="/users/<%= user.id %>/edit"class="button">Edit</a>
-        <% } %>
 
-        <% if (session.user.isAdmin && session.user.id !== user.id) { %>
-            <a href="/users/<%= user.id %>?_method=DELETE"
 
-                        onClick="return confirm('Delete user: <%= user.username %>');"
-                    class="button">Delete
-
-            </a>
-        <% } %>
-    </p>
-<% } %>
-
-<p>Seguidores: </p>
-<% for (let follower of followers){%>
-    <p id="follower_<%=follower.id%>"><%=follower.username%></p>
-<%}%>
-<p id="newFollower"></p>
-
-<%if(session.user){%>
-    <%if(session.user.id!==user.id){%>
-    <td>
-        <a id="follow_<%= user.id %>" class="button"></a>
-    </td>
-    <%}%>
-</br>
 <script>
     (function(){
         
         var state= <%=following%>;
         var userId= <%=session.user.id%>;
         var followedId= <%=user.id%>;
-        var followButton= document.getElementById("follow_<%=user.id%>");
-        followButton.text= state ? "Dejar de seguir" : "Seguir";
-        followButton.onclick=function(){
+        var followButton= $("#follow_<%=user.id%>");
+        if(userId===followedId){
+            followButton.attr('disabled',true)
+        }
+        followButton.text(state ? "Unfollow" : "Follow");
+        followButton.on('click',function(){
             var request = new XMLHttpRequest();
             var method = state ? "DELETE" : "PUT" ;
             var url= "/users/"+ followedId + "/followers/" + userId + "?_method=" + method;
@@ -74,17 +77,16 @@
                     if(state){
 
                     }
-                    followButton.text= state ? "Dejar de seguir" : "Seguir";
+                    followButton.text(state ? "Unfollow" : "Follow");
                     state ? $("#newFollower").text("<%=session.user.username%>"): ($(`#follower_${userId}`).remove(),$("#newFollower").text(""));
                 }
             }
             request.send();
             return false;
-        };
+        });
     })();
 </script>
 
-<%}%>
 
 <a href="/goback" class="button">Go back</a>
 
