@@ -8,12 +8,13 @@ module.exports = {
           type:Sequelize.STRING,
           unique: "compositeKey",
         },
-        id:{
-          type:Sequelize.INTEGER,
-          primaryKey:true,
-          unique: "compositeKey",
-          allowNull: false
-        },
+        id: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          primaryKey: true,
+          autoIncrement: true,
+          unique: true
+      },
         createdAt: {
           type: Sequelize.DATE,
           allowNull: false
