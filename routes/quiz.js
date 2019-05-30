@@ -6,11 +6,13 @@ const tipController = require('../controllers/tip');
 const userController = require('../controllers/user');
 const sessionController = require('../controllers/session');
 const favouriteController = require('../controllers/favourite');
-
+const statisticsController = require('../controllers/statistics');
+const followersController = require('../controllers/followers');
+const themesController = require('../controllers/themes');
 //-----------------------------------------------------------
 
 // autologout
-router.all('*',sessionController.deleteExpiredUserSession);
+router.all('*',sessionController.deleteExpiredUserSession,themesController.load);
 
 //-----------------------------------------------------------
 
@@ -34,12 +36,14 @@ function saveBack(req, res, next) {
 // Restoration routes are GET routes that do not end in:
 //   /new, /edit, /play, /check, /session, or /:id.
 router.get([
-  '/','/author',
-  '/users',
-  '/users/:id(\\d+)/quizzes',
-  '/quizzes'],                 saveBack);
-
-//-----------------------------------------------------------
+    '/',
+    '/author',
+    '/statistics',
+    '/users',
+    '/users/:id(\\d+)/quizzes',
+    '/quizzes'], saveBack);
+  
+  //-----------------------------------------------------------
 
 /* GET home page. */
 router.get('/', (req, res, next) => {
@@ -51,6 +55,13 @@ router.get('/author', (req, res, next) => {
   res.render('author');
 });
 
+//Chat
+router.get('/chat',sessionController.loginRequired, (req, res, next) => {
+    res.render('chat');
+});
+
+// Statistics page.
+router.get('/statistics', statisticsController.index);
 
 // Autoload for routes using :quizId
 router.param('quizId', quizController.load);
@@ -157,6 +168,22 @@ router.delete('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)',
     quizController.adminOrAuthorRequired,
     tipController.destroy);
 
+router.get('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)/edit',
+    sessionController.loginRequired,
+    tipController.adminOrAuthorRequired,
+    tipController.edit);
+
+router.put('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)',
+    sessionController.loginRequired,
+    tipController.adminOrAuthorRequired,
+    tipController.update);
+
+
+// Routes for playing
+
+router.get('/quizzes/randomcheck/:quizId(\\d+)',quizController.randomCheck)
+
+router.get('/quizzes/randomplay',quizController.randomPlay);
 
 // Routes for the resource favourites of a user
 router.put('/users/:userId(\\d+)/favourites/:quizId(\\d+)',
@@ -168,5 +195,8 @@ router.delete('/users/:userId(\\d+)/favourites/:quizId(\\d+)',
     sessionController.adminOrMyselfRequired,
     favouriteController.del);
 
+//Routes for followers
+router.put('/users/:userId/followers/:followerId', followersController.add);
+router.delete('/users/:userId/followers/:followerId', followersController.delete);
 
 module.exports = router;

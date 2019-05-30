@@ -30,7 +30,7 @@ const paginate = (totalItems, itemsPerPage, currentPage, url, param_name) => {
 
     const html = [];
 
-    html.push('<ul class="pagination">');
+    html.push('<ul class="pagination" style="margin-left: 66px;">');
 
     // Modify neighbors to avoid having few buttons:
     //  - If there is no space for the neighbors on the left, I show more by the right.

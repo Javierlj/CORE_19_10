@@ -1,18 +1,49 @@
 <ul id="messages"></ul>
-<form action="">
-  <input id="m" autocomplete="off" /><button>Send</button>
-</form>
+<div class="messaging">
+    <div class="inbox_msg">
+    
+      <div class="mesgs" style="width: 100%;">
+        <div class="msg_history">
+        </div>
+        <div class="type_msg">
+          <div class="input_msg_write">
+            <form action="">
+              <input type="text" id="m" class="write_msg" autocomplete="off" placeholder="Type a message" />
+              <button class="msg_send_btn" type="button"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
 <script src="http://localhost:5000/socket.io/socket.io.js"></script>
 <script>
   $(function () {
     var socket = io('http://localhost:5000');
-    $('form').submit(function(){  
-      socket.emit('chat message',"<%=session.user.username%>: " + $('#m').val());
-      $('#m').val('');
+    $('form').submit(function(){
+      if($('#m').val()){  
+        socket.emit('chat message',"<%=session.user.username%>: " + $('#m').val());
+        $(".msg_history").append(`<div class="outgoing_msg">
+              <div class="sent_msg">
+                <p>${$('#m').val()}</p>
+                <span class="time_date"> ${new Date()}</span> </div>
+            </div>`)
+        $('#m').val('');
+      }
       return false;
     });
     socket.on('chat message', function(msg){
-      $('#messages').append($('<li>').text(msg));
+      var user= msg.substr(0, msg.indexOf(','));
+      if(user!==<%=session.user.username%>){
+        $(".msg_history").append(`<div class="incoming_msg">
+              <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+              <div class="received_msg">
+                <div class="received_withd_msg">
+                  <p>${msg}</p>
+                  <span class="time_date"> ${new Date()}</span></div>
+              </div>
+            </div>`)
+      }
       window.scrollTo(0, document.body.scrollHeight);
     });
   });

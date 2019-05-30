@@ -27,10 +27,12 @@ sequelize.import(path.join(__dirname,'attachment'));
 // Session
 sequelize.import(path.join(__dirname,'session'));
 
+// Session
+sequelize.import(path.join(__dirname,'theme'));
 
 // Relation between models
 
-const {quiz, tip, attachment, user} = sequelize.models;
+const {quiz, tip, attachment, user, theme} = sequelize.models;
 
 tip.belongsTo(quiz);
 quiz.hasMany(tip);
@@ -45,6 +47,12 @@ quiz.belongsTo(user, {as: 'author', foreignKey: 'authorId'});
 // Relation 1-to-1 between Quiz and Attachment
 attachment.belongsTo(quiz);
 quiz.hasOne(attachment);
+
+//Relation 1-to-N betwwen Quiz and Theme
+theme.hasMany(quiz,{foreignKey:'themeId'});
+quiz.belongsTo(theme,{foreignKey:'themeId'});
+
+//Relation N-to-N between user
 user.belongsToMany(user, {as:'Followers',through:'followers',foreignKey: 'followerId'});
 user.belongsToMany(user, {as:'Followed',through:'followers',foreignKey: 'followedId'});
 

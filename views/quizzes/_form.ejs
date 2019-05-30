@@ -11,7 +11,18 @@
 </div>
 
 <br />
-
+Theme: 
+<select name="themeId">
+<option value="">No theme</option>
+<%for (var theme of session.themes){%>
+    <%if(quiz.theme && theme.id===quiz.theme.id){%>
+        <option selected="selected" value="<%=theme.id%>"><%=theme.name%></option>
+    <%}else{%>
+        <option value="<%=theme.id%>"><%=theme.name%></option>
+    <%}%>
+<%}%>
+</select>
+<br/>
 <label for="img">Attach file (Max size 2MB):</label>
 <input type="file" id="img" name="image"/>
 
@@ -27,19 +38,4 @@
 
 <a href="/goback" class="button">Go back</a>
 
-<script>
-    (function(){
-        
-        let createButton= document.getElementById("create-button");
-        createButton.onclick=function(){
-            $.ajax({
-               type:'POST',
-               url: '/quizzes?question='+$("#question").text()+'&answer='+$("#answer").text(),
-                success: function(response){
-                    $("#create").hide();
-                    $("#show").show();
-                }
-            })
-        };
-    })();
-</script>
+<input type="submit" value="Save">

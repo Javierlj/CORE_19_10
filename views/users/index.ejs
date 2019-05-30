@@ -10,6 +10,7 @@
             <%= users[i].isAdmin ? "(admin)" : "" %>
         </td>
 
+        <td>Puntos: <%=users[i].points ? users[i].points : 0%></td>
         <% if (session.user) { %>
 
             <% if (session.user.isAdmin || session.user.id === users[i].id) { %>

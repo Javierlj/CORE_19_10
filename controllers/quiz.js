@@ -28,9 +28,9 @@ exports.load = (req, res, next, quizId) => {
             {model:models.tip, include: [
                 {model: models.user, as: 'author'}
             ]},
-            models.tip,
             models.attachment,
-            {model: models.user, as: 'author'}
+            {model: models.user, as: 'author'},
+            models.theme
         ]
     };
 
@@ -103,7 +103,6 @@ exports.adminOrAuthorRequired = (req, res, next) => {
 
 // GET /quizzes
 exports.index = (req, res, next) => {
-
     let countOptions = {
         where: {},
         include: []
@@ -119,6 +118,14 @@ exports.index = (req, res, next) => {
         const search_like = "%" + search.replace(/ +/g,"%") + "%";
 
         countOptions.where = {question: { [Op.like]: search_like }};
+    }
+    if(req.query){
+        const themeId= req.query.theme || '';
+
+        if(themeId){
+            countOptions.where = {themeId: themeId};
+            title = req.session.themes[themeId-1].name;
+        }
     }
 
     // If there exists "req.user", then only the quizzes of that user are shown
@@ -165,7 +172,7 @@ exports.index = (req, res, next) => {
 
         // Pagination:
 
-        const items_per_page = 10;
+        const items_per_page = 9;
 
         // The page to show is given in the query
         const pageno = parseInt(req.query.pageno) || 1;
@@ -181,10 +188,12 @@ exports.index = (req, res, next) => {
         };
 
         findOptions.include.push(models.attachment);
-        findOptions.include.push({
+        findOptions.include.push(
+            {
             model: models.user,
-            as: 'author'
-        });
+            as: 'author'},
+            {model: models.theme}
+            );
 
         return models.quiz.findAll(findOptions);
     })
@@ -230,7 +239,6 @@ exports.index = (req, res, next) => {
 exports.show = (req, res, next) => {
 
     const {quiz} = req;
-
     const format = (req.params.format || 'html').toLowerCase();
 
     switch (format) {
@@ -283,6 +291,7 @@ exports.new = (req, res, next) => {
     };
 
     res.render('quizzes/new', {quiz});
+
 };
 
 // POST /quizzes/create
@@ -310,18 +319,18 @@ exports.create = (req, res, next) => {
     })
     .then(() => {
 
-        const {question, answer} = req.body;
+        const {question, answer, themeId} = req.body;
 
         const authorId = req.session.user && req.session.user.id || 0;
-
         const quiz = models.quiz.build({
             question,
             answer,
-            authorId
+            authorId,
+            themeId
         });
 
-        // Saves only the fields question and answer into the DDBB
-        return quiz.save({fields: ["question", "answer", "authorId"]});
+        // Saves into the DDBB
+        return quiz.save({fields: ["question", "answer", "authorId","themeId"]});
     })
     .then(quiz => {
         req.flash('success', 'Quiz created successfully.');
@@ -421,8 +430,8 @@ exports.update = (req, res, next) => {
 
         quiz.question = body.question;
         quiz.answer = body.answer;
-
-        return quiz.save({fields: ["question", "answer"]});
+        quiz.themeId =body.themeId;
+        return quiz.save({fields: ["question", "answer","themeId"]});
     })
     .then(quiz => {
         req.flash('success', 'Quiz edited successfully.');
@@ -597,9 +606,12 @@ exports.check = (req, res, next) => {
 
     const answer = query.answer || "";
     const result = answer.toLowerCase().trim() === quiz.answer.toLowerCase().trim();
-    if(result){
-        req.session.user.points++;
-        req.session.user.save({fields:["points"]})
+    if(result && req.session.user){
+        models.user.findByPk(req.session.user.id)
+        .then(user=>{
+            user.points++;
+            user.save({fields:["points"]});
+        })
     }
     res.render('quizzes/result', {
         quiz,

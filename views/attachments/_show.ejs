@@ -2,15 +2,17 @@
 
     <a href='<%= attachment.url %>'
        type='<%= attachment.mime %>'
-       target='_blank'>
-
+       target='_blank'
+       class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img"
+       >
+        
         <% if ( attachment.mime === "image/jpeg" ||
                 attachment.mime === "image/gif" ||
                 attachment.mime === "image/jpg" ||
                 attachment.mime === "image/png" ||
                 attachment.mime === "image/gif" ) { %>
 
-            <%- attHelper.image(attachment.public_id, {width: 150, secure: true}) %>
+            <%- attHelper.image(attachment.public_id, {width: "100%", secure: true}) %>
 
         <% } else if ( attachment.mime === "video/mp4" ) { %>
 
@@ -22,10 +24,11 @@
 
         <% } else { %>
 
-            <img src='/images/doc.png' width="150px"/>
+            <img src='/images/doc.png' width="100%"/>
 
         <% } %>
     </a>
 <% } else { %>
-    <img src="/images/none.png" width="50px"/>
+    <img        class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img"
+    src="/images/none.png" />
 <% } %>

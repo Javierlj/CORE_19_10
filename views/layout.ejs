@@ -16,43 +16,77 @@
     <script src="/js/bundle.js"></script>
     <script type='text/javascript' src='//platform-api.sharethis.com/js/sharethis.js#property=5ce9806b5676af001119e8a6&product='inline-share-buttons' async='async'></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </head>
 <body>
 <div id="page">
     <header class="main" id="mainHeader">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="/">The Quiz Site</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" >
+                    <span class="navbar-toggler-icon"></span>collapse
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto" style="align-items: flex-start;">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/author">Author</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="/quizzes" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Quizzes
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <%for (var theme of session.themes){%>
+                                <a class="dropdown-item" href="/quizzes?theme=<%=theme.id%>"><%=theme.name%></a>
+                            <%}%>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/quizzes">All</a>
+                            </div>
+                        </li>
+                        <% if (session.user) { %>
+                            <li class="nav-item">
+                                    <a class="nav-link" href="/users/<%= session.user.id %>/quizzes">My Quizzes</a>
+                            </li>
+                        <% } %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/statistics">Statistics</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/quizzes/randomplay">Play</a>
+                        </li>
+                        <% if (session.user) { %>
+                            <li class="nav-item">
+                                    <a class="nav-link" href="/chat">Chat</a>
+                            </li>
+                            <li class="nav-item">
+                                    <a class="nav-link" href="/users">Users</a>
+                            </li>
+                        <% } %>
+                    </ul>
+                    <form class="form-inline">
+                            <% if (!session.user) { %>
 
-        <div class="right">
-            <% if (!session.user) { %>
-
-                <% if (!!process.env.QUIZ_OPEN_REGISTER) { %>
-                    <a href="/users/new">Register</a>
-                <% } %>
-
-                <a href="/session">Login</a>
-            <% } else { %>
-                <a href="/users/<%= session.user.id %>"><%= session.user.username %></a>
-                <a href="/session?_method=DELETE">Logout</a>
-            <% } %>
-        </div>
-
-        <h1><span class="no-narrow">The</span> Quiz <span class="no-narrow">Site</span></h1>
+                                <% if (!!process.env.QUIZ_OPEN_REGISTER) { %>
+                                    <a class="btn btn-outline-success" href='/users/new'><span class="glyphicon glyphicon-user"></span>Register</a>
+                                <% } %>
+                                <a class="btn btn-outline-success" href='/session' ><span class="glyphicon glyphicon-log-in"></span>Login</a>
+                            <% } else { %>
+                                
+                                <a class="btn btn-sm btn-outline-secondary" href='/users/<%= session.user.id %>' ><%= session.user.username %></a>
+                                
+                                
+                                <a class="btn btn-outline-success" style="margin-left: 20px;" href='/session?_method=DELETE' >Logout</a>
+                                
+                            <% } %>
+                    </form>
+        
+                </div>
+            </nav>
     </header>
 
-    <nav class="main" id="mainNav" role="navigation">
-        <a href="/">Home</a>
-        <a href="/quizzes">Quizzes</a>
-        <% if (session.user) { %>
-            <a href="/users/<%= session.user.id %>/quizzes">My Quizzes</a>
-        <% } %>
-        <a href="/author">Author</a>
-        <a href="/statistics">Statistics</a>
-        <a href="/quizzes/randomplay">Play</a>
-        <% if (session.user) { %>
-            <a href="/chat">Chat</a>
-            <a href="/users">Users</a>
-        <% } %>
-    </nav>
 
     <section class="main" id="mainSection">
 

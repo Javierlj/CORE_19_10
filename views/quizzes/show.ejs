@@ -18,12 +18,11 @@
         Answer: <b><%= quiz.answer %></b>
         <br />
         <small> by <%= quiz.author ? quiz.author.username : "Anonymous" %> </small>
+        <br/>
+        Theme: <b><%= quiz.theme ? quiz.theme.name : "Other"%></b>
     </div>
 
 </div>
-
-
-<a href="/goback" class="button">Go back</a>
 
 
 <h1>

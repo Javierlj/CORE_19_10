@@ -50,7 +50,7 @@ exports.index = (req, res, next) => {
         const findOptions = {
             offset: items_per_page * (pageno - 1),
             limit: items_per_page,
-            order: ['username']
+            order: [['points','DESC'],['username']]
         };
 
         return models.user.findAll(findOptions);
@@ -68,15 +68,13 @@ exports.show = (req, res, next) => {
     let following= false;
     user.getFollowers()
     .then(followers=>{
-        console.log(followers);
-        if(followers){
-            followers.forEach(e=>{
-                if(e.id===req.session.id){
-                    following= true;
-                }
-            })
-        }
-        res.render('users/show', {user,followers,following});
+        user.getFollowers({where: {id: req.session.user.id}})
+        .then(follower => {
+            if (follower.length > 0) {
+                following = true;
+            }
+            res.render('users/show', {user,followers,following});
+        })
     })
     .catch(error=>next(error));
     
